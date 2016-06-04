@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".AppClient.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/layoutLink"
+        android:layout_alignParentTop="true">
+
+        <EditText
+            android:layout_weight="10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="10.0.2.2"
+            android:id="@+id/etIP" />
+
+        <Button
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Link"
+            android:id="@+id/btnLink" />
+
+    </LinearLayout>
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layoutLink"
+        android:layout_above="@+id/sendLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideInset"
+            android:id="@+id/contentLayout">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/textView" />
+
+            <include layout="@layout/layout_singlemsg_left" />
+
+            <include layout="@layout/layout_singlemsg_right"/>
+
+            <include layout="@layout/layout_singlemsg_right"/>
+
+            <include layout="@layout/layout_singlemsg_left" />
+
+            <include layout="@layout/layout_singlemsg_left"/>
+
+            <include layout="@layout/layout_singlemsg_right"/>
+
+            <include layout="@layout/layout_singlemsg_right" />
+
+            <include layout="@layout/layout_singlemsg_right"/>
+
+            <include layout="@layout/layout_singlemsg_right"/>
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/sendLayout">
+
+        <EditText
+            android:layout_weight="7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/etContent" />
+
+        <Button
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:id="@+id/btnSend" />
+
+    </LinearLayout>
+</RelativeLayout>
