@@ -1,13 +1,11 @@
 package com.example.jason.serversockettest.AppClient;
 
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -31,7 +29,7 @@ public class TestUIActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_chatwindow);
+        setContentView(R.layout.layout_chatwindow_test);
 
         initViews();
 
@@ -113,7 +111,7 @@ public class TestUIActivity extends AppCompatActivity {
             return view;
         }else{
             final View view = inflater.inflate(R.layout.layout_singlemsg_right, null);
-            lp.gravity = Gravity.RIGHT;
+            lp.gravity = Gravity.END;
             view.setLayoutParams(lp);
             TextView tv = (TextView) view.findViewById(R.id.tvRightMsg);
             tv.setText("This is My Text.................Loooooooooooooooooooooooooooooooooong Text!!!!!!!!!!!!!!");
@@ -139,6 +137,6 @@ public class TestUIActivity extends AppCompatActivity {
 
     private void initViews() {
         mLayoutChatWindow = (LinearLayout) findViewById(R.id.layout_content);
-        mScrollview = (ScrollView) findViewById(R.id.scrollview_chat_window);
+        mScrollview = (ScrollView) findViewById(R.id.scrollview_chat);
     }
 }

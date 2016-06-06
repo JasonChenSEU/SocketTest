@@ -3,9 +3,17 @@ package com.example.jason.serversockettest.AppClient;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +29,10 @@ public class MainActivity extends AppCompatActivity  {
 
     public static final String TAG = "MainActivity";
     EditText etIP,etContent;
-    TextView tv;
+
+    private ScrollView mScrollView;
+    private LinearLayout mLinearLayout;
+    private RelativeLayout mRelativeLayoutMain;
 
     Button m_btnLink;
 
@@ -30,11 +41,14 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        etIP = (EditText) findViewById(R.id.etIP);
-        etContent = (EditText) findViewById(R.id.etContent);
-        tv = (TextView) findViewById(R.id.textView);
+        initViews();
 
-        m_btnLink = (Button) findViewById(R.id.btnLink);
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
 
         m_btnLink.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,12 +58,20 @@ public class MainActivity extends AppCompatActivity  {
         });
 
 
-//        etIP.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                Log.d(TAG,"onFocusChanged. Focus?  " +  hasFocus);
-//            }
-//        });
+        mRelativeLayoutMain.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int heightDiff = mRelativeLayoutMain.getRootView().getHeight() - mRelativeLayoutMain.getHeight();
+
+                //make sure tha etContent hasFocus and HeightDiff > 1280-1024(don't know why-->maybe the content height is working now)
+                if(etContent.hasFocus() && heightDiff > 256){
+                    Log.v(TAG, "RootView Height: " +  mRelativeLayoutMain.getRootView().getHeight());
+                    Log.v(TAG, "View Height: " +  mRelativeLayoutMain.getHeight());
+                    Log.v(TAG, "heightDiff = " + heightDiff);
+                    mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+            }
+        });
 
         findViewById(R.id.btnSend).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,6 +82,22 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+    /**
+     * init views
+     */
+    private void initViews() {
+        mRelativeLayoutMain = (RelativeLayout) findViewById(R.id.layout_main);
+
+        etIP = (EditText) findViewById(R.id.etIP);
+
+        mLinearLayout = (LinearLayout) findViewById(R.id.layout_content);
+
+        mScrollView = (ScrollView) findViewById(R.id.scrollview_chat);
+
+        etContent = (EditText) findViewById(R.id.etContent);
+
+        m_btnLink = (Button) findViewById(R.id.btnLink);
+    }
 
 
     //---------------------------------
@@ -69,6 +107,9 @@ public class MainActivity extends AppCompatActivity  {
     BufferedReader reader = null;
 
 
+    /**
+     * Connect to server using AsyncTask and the input ip + default port(20000)
+     */
     public void connect(){
 
         final String str = etIP.getText().toString();
@@ -80,7 +121,6 @@ public class MainActivity extends AppCompatActivity  {
                 try {
                     socket = new Socket(str, 20000);
                     writer = new PrintWriter(socket.getOutputStream(), true);
-//                    writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     publishProgress("@Success");
                     writer.println("@Success");
@@ -99,8 +139,8 @@ public class MainActivity extends AppCompatActivity  {
                     Toast.makeText(MainActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
                     m_btnLink.setClickable(false);
                 }
-                tv.append(values[0]);
-                tv.append("\n");
+
+                updateView(values[0]);
 
                 super.onProgressUpdate(values);
             }
@@ -108,21 +148,55 @@ public class MainActivity extends AppCompatActivity  {
         read.execute();
     }
 
+    /**
+     * @param strContent
+     * Add view to Chat window with strContent
+     * Automatically scroll to bottom
+     */
+    private void updateView(String strContent) {
+        View view = addSingleMsg(strContent);
+        mLinearLayout.addView(view);
+        //addView之后等待绘制完成，移动到底端
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+    }
+
+    /**
+     * @param strContent info
+     * @return view to be added
+     * Left/right is depended by prefix: I (
+     *
+     */
+    private View addSingleMsg(String strContent) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT );
+        lp.bottomMargin = 10;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view;
+        if(strContent.startsWith("I (")){
+            lp.gravity = Gravity.END;
+            view = inflater.inflate(R.layout.layout_singlemsg_right,null);
+            TextView tv = (TextView) view.findViewById(R.id.tvRightMsg);
+            tv.setText(strContent);
+        }else{
+            view = inflater.inflate(R.layout.layout_singlemsg_left,null);
+            TextView tv = (TextView) view.findViewById(R.id.tvLeftMsg);
+            tv.setText(strContent);
+        }
+        view.setLayoutParams(lp);
+        return view;
+    }
+
+    /**
+     * send
+     */
     public void send(){
-//        writer.write(etContent.getText().toString());
-//        writer.flush();
-//        PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
         String out = etContent.getText().toString();
         writer.println(out);
         etContent.setText("");
     }
 
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        Log.d(TAG,"onTouch in MainActivity");
-//        InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(etContent.getWindowToken(),0);
-//        imm.hideSoftInputFromWindow(etIP.getWindowToken(), 0);
-//        return true;
-//    }
 }
